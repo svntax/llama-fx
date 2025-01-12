@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Copyright (c) 2015, 2019, Gluon and/or its affiliates.
+  All rights reserved. Use is subject to license terms.
+
+  This file is available and licensed under the following license:
+
+  Redistribution and use in source and binary forms, with or without
+  modification, are permitted provided that the following conditions
+  are met:
+
+  - Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+  - Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in
+    the documentation and/or other materials provided with the distribution.
+  - Neither the name of Oracle Corporation nor the names of its
+    contributors may be used to endorse or promote products derived
+    from this software without specific prior written permission.
+
+  THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+  "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+  A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+  SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+  DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+  THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+  (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+  OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+-->
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefHeight="480.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.svntax.llamafx.MainController">
+  <children>
+    <AnchorPane maxHeight="-1.0" maxWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+      <children>
+            <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" spacing="16.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+               <children>
+                  <VBox layoutX="170.0" layoutY="234.0" maxWidth="-Infinity" prefWidth="320.0" spacing="4.0">
+                     <children>
+                        <Label text="Path to llama.cpp folder" />
+                        <HBox fillHeight="false" maxWidth="1.7976931348623157E308" spacing="8.0">
+                           <children>
+                              <TextField fx:id="pathToLlamacppFolderField" HBox.hgrow="ALWAYS" />
+                              <Button mnemonicParsing="false" onAction="#onBrowsePathToLlamacpp" text="Browse" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+                  <GridPane maxWidth="-Infinity" prefWidth="320.0" vgap="16.0">
+                    <columnConstraints>
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                      <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                      <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                     <children>
+                        <Label maxHeight="1.7976931348623157E308" text="GPU Layers" />
+                        <TextField fx:id="gpuLayersField" text="-1" GridPane.columnIndex="1" />
+                        <Label layoutX="10.0" layoutY="10.0" maxHeight="1.7976931348623157E308" text="Threads" GridPane.rowIndex="1" />
+                        <TextField fx:id="threadsField" layoutX="170.0" layoutY="7.0" text="1" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label layoutX="10.0" layoutY="56.0" maxHeight="1.7976931348623157E308" text="Port" GridPane.rowIndex="2" />
+                        <TextField fx:id="portField" layoutX="170.0" layoutY="53.0" text="5001" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                     </children>
+                  </GridPane>
+                  <VBox maxWidth="-Infinity" prefWidth="320.0" spacing="4.0">
+                     <children>
+                        <Label text="Context Size" />
+                        <HBox fillHeight="false" maxWidth="1.7976931348623157E308" spacing="8.0">
+                           <children>
+                              <Slider fx:id="contextSizeSlider" blockIncrement="256.0" majorTickUnit="256.0" max="8192.0" maxWidth="1.7976931348623157E308" min="256.0" minWidth="-Infinity" minorTickCount="0" prefHeight="30.0" prefWidth="223.0" showTickMarks="true" snapToTicks="true" value="4096.0" HBox.hgrow="ALWAYS" />
+                              <Label fx:id="contextSizeLabel" contentDisplay="TOP" minWidth="38.0" text="4096" HBox.hgrow="ALWAYS" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+                  <VBox layoutX="170.0" layoutY="118.0" maxWidth="-Infinity" prefWidth="320.0" spacing="4.0">
+                     <children>
+                        <Label text="GGUF Model" />
+                        <HBox fillHeight="false" maxWidth="1.7976931348623157E308" spacing="8.0">
+                           <children>
+                              <TextField fx:id="pathToModelField" HBox.hgrow="ALWAYS" />
+                              <Button mnemonicParsing="false" onAction="#onBrowsePathToModel" text="Browse" />
+                           </children>
+                        </HBox>
+                     </children>
+                  </VBox>
+               </children>
+               <padding>
+                  <Insets top="16.0" />
+               </padding>
+            </VBox>
+      </children>
+    </AnchorPane>
+      <HBox spacing="16.0" style="-fx-background-color: -color-bg-inset;">
+         <children>
+          <Button mnemonicParsing="false" onAction="#onSave" text="Save" />
+            <Button mnemonicParsing="false" onAction="#onLoad" text="Load" />
+            <Button mnemonicParsing="false" onAction="#onHelp" styleClass="button-outlined" text="Help" />
+            <Pane maxWidth="1.7976931348623157E308" HBox.hgrow="ALWAYS" />
+            <Button alignment="CENTER_RIGHT" defaultButton="true" mnemonicParsing="false" onAction="#onLaunch" text="Launch" />
+         </children>
+         <VBox.margin>
+            <Insets />
+         </VBox.margin>
+         <padding>
+            <Insets bottom="8.0" left="16.0" right="16.0" top="8.0" />
+         </padding>
+      </HBox>
+  </children>
+</VBox>
