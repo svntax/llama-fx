@@ -3,6 +3,7 @@ package com.svntax.llamafx;
 import atlantafx.base.controls.Notification;
 import atlantafx.base.theme.Styles;
 import atlantafx.base.util.Animations;
+import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
@@ -22,6 +23,11 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
+import javafx.util.converter.NumberStringConverter;
+
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.util.Properties;
 
 import java.io.File;
 import java.io.IOException;
@@ -54,14 +60,28 @@ public class MainController {
     @FXML
     private TextField pathToModelField;
 
+    private ConfigModel configModel;
+
+    public MainController(){
+        configModel = new ConfigModel();
+    }
+
     @FXML
     public void initialize(){
+        configModel.pathToLlamacppFolderProperty().bindBidirectional(pathToLlamacppFolderField.textProperty());
+        configModel.pathToModelProperty().bindBidirectional(pathToModelField.textProperty());
+        Bindings.bindBidirectional(portField.textProperty(), configModel.portProperty(), new NumberStringConverter());
+        Bindings.bindBidirectional(gpuLayersField.textProperty(), configModel.gpuLayersProperty(), new NumberStringConverter());
+        Bindings.bindBidirectional(threadsField.textProperty(), configModel.threadsCountProperty(), new NumberStringConverter());
+        configModel.contextSizeProperty().bindBidirectional(contextSizeSlider.valueProperty());
+
         pathToLlamacppFolder = new SimpleStringProperty("");
         pathToModel = new SimpleStringProperty("");
 
-        gpuLayersField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), -1));
-        threadsField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), 1));
-        portField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), 5001));
+        gpuLayersField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), ConfigModel.DEFAULT_GPU_LAYERS));
+        threadsField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), ConfigModel.DEFAULT_THREADS_COUNT));
+        portField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), ConfigModel.DEFAULT_PORT));
+        contextSizeSlider.setValue(ConfigModel.DEFAULT_CONTEXT_SIZE);
 
         contextSizeSlider.valueProperty().addListener((ObservableValue<? extends Number> ov, Number oldValue, Number newValue) -> {
             int value = newValue.intValue();
@@ -77,13 +97,14 @@ public class MainController {
         Stage stage = (Stage) source.getScene().getWindow();
 
         DirectoryChooser dirChooser = new DirectoryChooser();
+        dirChooser.setTitle("Select Folder to llama.cpp");
         File initialDir = new File(pathToLlamacppFolder.getValue());
         if(initialDir.exists()){
             dirChooser.setInitialDirectory(initialDir);
         }
         File selectedDir = dirChooser.showDialog(stage);
         if(selectedDir != null){
-            pathToLlamacppFolder.setValue(selectedDir.getAbsolutePath());
+            pathToLlamacppFolder.set(selectedDir.getAbsolutePath());
             pathToLlamacppFolderField.setText(pathToLlamacppFolder.getValue());
         }
     }
@@ -94,6 +115,7 @@ public class MainController {
         Stage stage = (Stage) source.getScene().getWindow();
 
         FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Select GGUF Model File");
         File initialFile = new File(pathToModel.getValue());
         if(initialFile.exists()){
             fileChooser.setInitialFileName(initialFile.getAbsolutePath());
@@ -101,19 +123,71 @@ public class MainController {
         }
         File selectedFile = fileChooser.showOpenDialog(stage);
         if(selectedFile != null){
-            pathToModel.setValue(selectedFile.getAbsolutePath());
+            pathToModel.set(selectedFile.getAbsolutePath());
             pathToModelField.setText(pathToModel.getValue());
         }
     }
 
     @FXML
     private void onSave(ActionEvent event){
+        Button source = (Button) event.getSource();
+        Stage stage = (Stage) source.getScene().getWindow();
 
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Save Config");
+        fileChooser.setInitialFileName("config.xml");
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("XML Document (*.xml)", "*.xml"));
+        File initialFile = new File(pathToModel.getValue());
+        if(initialFile.exists()){
+            // Name the config file using the current model's name
+            fileChooser.setInitialDirectory(initialFile.getParentFile());
+            String fileName = initialFile.getName();
+            // Remove extension from file name
+            int pos = fileName.lastIndexOf(".");
+            if(0 < pos && pos < (fileName.length() - 1)){
+                fileName = fileName.substring(0, pos);
+            }
+            fileChooser.setInitialFileName(fileName + " config.xml");
+        }
+
+        File saveFile = fileChooser.showSaveDialog(stage);
+        if(saveFile != null){
+            boolean success = configModel.saveToConfigFile(saveFile);
+            if(success){
+                showNotification("Saved " + saveFile.getName(), NotificationType.SUCCESS);
+            }
+            else{
+                showNotification("Error: Failed to save config file.", NotificationType.DANGER);
+            }
+        }
     }
 
     @FXML
     private void onLoad(ActionEvent event){
+        Button source = (Button) event.getSource();
+        Stage stage = (Stage) source.getScene().getWindow();
 
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Load Config");
+        fileChooser.getExtensionFilters().addAll(new FileChooser.ExtensionFilter("XML Document (*.xml)", "*.xml"));
+        File initialFile = new File(pathToModel.getValue());
+        if(initialFile.exists()){
+            fileChooser.setInitialDirectory(initialFile.getParentFile());
+        }
+
+        File configFile = fileChooser.showOpenDialog(stage);
+        if(configFile != null){
+            boolean success = configModel.loadConfigFile(configFile);
+            if(success){
+                showNotification("Config loaded!", NotificationType.SUCCESS);
+                // Also update the view properties for directory/file choosers
+                pathToLlamacppFolder.set(configModel.getPathToLlamacppFolder());
+                pathToModel.set(configModel.getPathToModel());
+            }
+            else{
+                showNotification("Error: Failed to load " + configFile.getName(), NotificationType.DANGER);
+            }
+        }
     }
 
     @FXML
@@ -121,24 +195,36 @@ public class MainController {
 
     }
 
-    private void showErrorNotification(String msg){
-        Notification errorNotification = new Notification(msg);
-        errorNotification.getStyleClass().addAll(Styles.ELEVATED_1, Styles.DANGER);
-        errorNotification.setPrefHeight(Region.USE_PREF_SIZE);
-        errorNotification.setMaxHeight(Region.USE_PREF_SIZE);
-        errorNotification.translateYProperty().set(-100);
+    private void showNotification(String msg, NotificationType notificationType){
+        Notification popup = new Notification(msg);
+        popup.getStyleClass().add(Styles.ELEVATED_1);
+        if(notificationType == NotificationType.NORMAL){
+            popup.getStyleClass().add(Styles.ACCENT);
+        }
+        else if(notificationType == NotificationType.SUCCESS){
+            popup.getStyleClass().add(Styles.SUCCESS);
+        }
+        else if(notificationType == NotificationType.WARNING){
+            popup.getStyleClass().add(Styles.WARNING);
+        }
+        else if(notificationType == NotificationType.DANGER){
+            popup.getStyleClass().add(Styles.DANGER);
+        }
+        popup.setPrefHeight(Region.USE_PREF_SIZE);
+        popup.setMaxHeight(Region.USE_PREF_SIZE);
+        popup.translateYProperty().set(-100);
 
-        errorNotification.setOnClose(e -> {
-            var out = Animations.slideOutUp(errorNotification, Duration.millis(250));
-            out.setOnFinished(f -> stackPane.getChildren().remove(errorNotification));
+        popup.setOnClose(e -> {
+            var out = Animations.slideOutUp(popup, Duration.millis(250));
+            out.setOnFinished(f -> stackPane.getChildren().remove(popup));
             out.playFromStart();
         });
 
-        StackPane.setAlignment(errorNotification, Pos.TOP_RIGHT);
-        StackPane.setMargin(errorNotification, new Insets(10, 10, 0, 0));
-        stackPane.getChildren().add(errorNotification);
-        errorNotification.widthProperty().addListener(((observable, oldValue, newValue) -> {
-            var in = Animations.slideInDown(errorNotification, Duration.millis(250));
+        StackPane.setAlignment(popup, Pos.TOP_RIGHT);
+        StackPane.setMargin(popup, new Insets(10, 10, 0, 0));
+        stackPane.getChildren().add(popup);
+        popup.widthProperty().addListener(((observable, oldValue, newValue) -> {
+            var in = Animations.slideInDown(popup, Duration.millis(250));
             in.playFromStart();
         }));
     }
@@ -164,12 +250,12 @@ public class MainController {
         File llamacppDir = new File(pathToLlamacppFolderField.getText());
         File llamaServer = new File(pathToLlamacppFolderField.getText() + "/llama-server.exe");
         if(!llamacppDir.exists() || !llamacppDir.isDirectory() || !llamaServer.exists()){
-            showErrorNotification("Error: Failed to find llama-server.exe\nCheck the llama.cpp path.");
+            showNotification("Error: Failed to find llama-server.exe\nCheck the llama.cpp path.", NotificationType.DANGER);
             return;
         }
         File model = new File(pathToModelField.getText());
         if(!model.exists() || model.isDirectory()){
-            showErrorNotification("Error: Cannot find model file: " + pathToModelField.getText());
+            showNotification("Error: Cannot find model file: " + pathToModelField.getText(), NotificationType.DANGER);
             return;
         }
         builder.directory(llamacppDir);
@@ -179,12 +265,12 @@ public class MainController {
 
             int exitCode = process.waitFor();
             if(exitCode != 0){
-                showErrorNotification("Error: Process ended with exit code " + exitCode);
+                showNotification("Error: Process ended with exit code " + exitCode, NotificationType.DANGER);
             }
         } catch (IOException e) {
-            showErrorNotification("Error: " + e.getMessage());
+            showNotification("Error: " + e.getMessage(), NotificationType.DANGER);
         } catch (InterruptedException e) {
-            showErrorNotification("Error: " + e.getMessage());
+            showNotification("Error: " + e.getMessage(), NotificationType.DANGER);
         }
     }
 
