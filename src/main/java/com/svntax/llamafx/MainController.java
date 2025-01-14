@@ -25,9 +25,9 @@ import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
 import javafx.util.converter.NumberStringConverter;
 
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.util.Properties;
+import java.awt.Desktop;
+import java.net.URI;
+import java.net.URISyntaxException;
 
 import java.io.File;
 import java.io.IOException;
@@ -191,8 +191,21 @@ public class MainController {
     }
 
     @FXML
-    private void onHelp(ActionEvent event){
-
+    private void onOpenWebUi(ActionEvent event){
+        String url = "http://localhost:" + configModel.getPort();
+        if(Desktop.isDesktopSupported()){
+            Desktop desktop = Desktop.getDesktop();
+            try {
+                desktop.browse(new URI(url));
+            } catch (IOException e) {
+                showNotification("Error: " + e.getMessage(), NotificationType.DANGER);
+            } catch (URISyntaxException e) {
+                showNotification("Error: " + e.getMessage(), NotificationType.DANGER);
+            }
+        }
+        else{
+            showNotification("This feature is not supported on your platform.", NotificationType.DANGER);
+        }
     }
 
     private void showNotification(String msg, NotificationType notificationType){
