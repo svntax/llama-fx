@@ -6,12 +6,13 @@
 
   <groupId>com.svntax</groupId>
   <artifactId>llama-fx</artifactId>
-  <version>1.0-SNAPSHOT</version>
+  <version>1.0.0</version>
   <name>llama-fx</name>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-<junit.version>5.10.2</junit.version>  </properties>
+    <junit.version>5.10.2</junit.version>
+  </properties>
 
   <dependencies>
     <dependency>
@@ -67,11 +68,49 @@
             <configuration>
               <mainClass>com.svntax.llamafx/com.svntax.llamafx.MainApplication</mainClass>
               <launcher>app</launcher>
+              <compress>2</compress>
               <jlinkZipName>app</jlinkZipName>
               <jlinkImageName>app</jlinkImageName>
               <noManPages>true</noManPages>
               <stripDebug>true</stripDebug>
               <noHeaderFiles>true</noHeaderFiles>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.panteleyev</groupId>
+        <artifactId>jpackage-maven-plugin</artifactId>
+        <version>1.6.5</version>
+
+        <configuration>
+          <name>llama-fx</name>
+          <appVersion>${project.version}</appVersion>
+          <vendor>com.svntax</vendor>
+          <module>com.svntax.llamafx/com.svntax.llamafx.MainApplication</module>
+          <runtimeImage>target/app</runtimeImage>
+          <destination>target/dist</destination>
+        </configuration>
+
+        <executions>
+          <execution>
+            <id>mac</id>
+            <configuration>
+              <icon>src/main/resources/icons/icons.icns</icon>
+            </configuration>
+          </execution>
+          <execution>
+            <id>win</id>
+            <configuration>
+              <type>APP_IMAGE</type>
+              <icon>src/main/resources/icons/icon.ico</icon>
+            </configuration>
+          </execution>
+          <execution>
+            <id>linux</id>
+            <configuration>
+              <type>APP_IMAGE</type>
+              <icon>src/main/resources/icons/icon.png</icon>
             </configuration>
           </execution>
         </executions>

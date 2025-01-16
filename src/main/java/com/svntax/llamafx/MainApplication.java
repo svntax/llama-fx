@@ -4,6 +4,7 @@ import atlantafx.base.theme.CupertinoDark;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 
 import java.io.IOException;
@@ -17,6 +18,7 @@ public class MainApplication extends Application {
         FXMLLoader fxmlLoader = new FXMLLoader(MainApplication.class.getResource("llama-fx-gui.fxml"));
         Scene scene = new Scene(fxmlLoader.load(), 640, 480);
         stage.setTitle("llama-fx");
+        stage.getIcons().add(new Image(MainApplication.class.getResourceAsStream("/icons/icon.png")));
         stage.setScene(scene);
         stage.show();
     }
