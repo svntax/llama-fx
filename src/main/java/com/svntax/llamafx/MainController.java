@@ -3,7 +3,6 @@ package com.svntax.llamafx;
 import atlantafx.base.controls.Notification;
 import atlantafx.base.theme.Styles;
 import atlantafx.base.util.Animations;
-import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
@@ -23,7 +22,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.util.converter.IntegerStringConverter;
-import javafx.util.converter.NumberStringConverter;
 
 import java.awt.Desktop;
 import java.net.URI;
@@ -68,13 +66,58 @@ public class MainController {
 
     @FXML
     public void initialize(){
-        configModel.pathToLlamacppFolderProperty().bindBidirectional(pathToLlamacppFolderField.textProperty());
-        configModel.pathToModelProperty().bindBidirectional(pathToModelField.textProperty());
-        Bindings.bindBidirectional(portField.textProperty(), configModel.portProperty(), new NumberStringConverter());
-        Bindings.bindBidirectional(gpuLayersField.textProperty(), configModel.gpuLayersProperty(), new NumberStringConverter());
-        Bindings.bindBidirectional(threadsField.textProperty(), configModel.threadsCountProperty(), new NumberStringConverter());
-        configModel.contextSizeProperty().bindBidirectional(contextSizeSlider.valueProperty());
+        // Bind properties with listeners
+        configModel.pathToLlamacppFolderProperty().addListener((ObservableValue<? extends String> ov, String oldValue, String newValue) -> {
+            pathToLlamacppFolderField.setText(newValue);
+        });
+        pathToLlamacppFolderField.textProperty().addListener((ObservableValue<? extends String> ov, String oldValue, String newValue) -> {
+            configModel.setPathToLlamacppFolder(newValue);
+        });
 
+        configModel.pathToModelProperty().addListener((ObservableValue<? extends String> ov, String oldValue, String newValue) -> {
+            pathToModelField.setText(newValue);
+        });
+        pathToModelField.textProperty().addListener((ObservableValue<? extends String> ov, String oldValue, String newValue) -> {
+            configModel.setPathToModel(newValue);
+        });
+
+        configModel.portProperty().addListener((ObservableValue<? extends Number> ov, Number oldValue, Number newValue) -> {
+            int value = newValue.intValue();
+            portField.setText(Integer.toString(value));
+        });
+        portField.textProperty().addListener((ObservableValue<? extends String> ov, String oldValue, String newValue) -> {
+            try {
+                configModel.setPort(Integer.parseInt(newValue));
+            } catch (NumberFormatException e) {
+                // Do nothing
+            }
+        });
+
+        configModel.gpuLayersProperty().addListener((ObservableValue<? extends Number> ov, Number oldValue, Number newValue) -> {
+            int value = newValue.intValue();
+            gpuLayersField.setText(Integer.toString(value));
+        });
+        gpuLayersField.textProperty().addListener((ObservableValue<? extends String> ov, String oldValue, String newValue) -> {
+            try {
+                configModel.setGpuLayers(Integer.parseInt(newValue));
+            } catch (NumberFormatException e) {
+                // Do nothing
+            }
+        });
+
+        configModel.threadsCountProperty().addListener((ObservableValue<? extends Number> ov, Number oldValue, Number newValue) -> {
+            int value = newValue.intValue();
+            threadsField.setText(Integer.toString(value));
+        });
+        threadsField.textProperty().addListener((ObservableValue<? extends String> ov, String oldValue, String newValue) -> {
+            try {
+                configModel.setThreadsCount(Integer.parseInt(newValue));
+            } catch (NumberFormatException e) {
+                // Do nothing
+            }
+        });
+
+        // These properties are used to keep track of the previously opened directories for browsing
         pathToLlamacppFolder = new SimpleStringProperty("");
         pathToModel = new SimpleStringProperty("");
 
@@ -83,11 +126,16 @@ public class MainController {
         portField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), ConfigModel.DEFAULT_PORT));
         contextSizeSlider.setValue(ConfigModel.DEFAULT_CONTEXT_SIZE);
 
+        configModel.contextSizeProperty().addListener((ObservableValue<? extends Number> ov, Number oldValue, Number newValue) -> {
+            int value = newValue.intValue();
+            contextSizeSlider.setValue(value);
+        });
         contextSizeSlider.valueProperty().addListener((ObservableValue<? extends Number> ov, Number oldValue, Number newValue) -> {
             int value = newValue.intValue();
             int interval = (int) contextSizeSlider.getMajorTickUnit();
             int roundedValue = Math.round((float) value / interval) * interval;
             contextSizeLabel.setText(Integer.toString(roundedValue));
+            configModel.setContextSize(roundedValue);
         });
     }
 
