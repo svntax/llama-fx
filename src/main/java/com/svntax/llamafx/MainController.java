@@ -50,7 +50,7 @@ public class MainController {
     private TextField portField;
 
     @FXML
-    private Label contextSizeLabel;
+    private TextField contextSizeTextField;
     @FXML
     private Slider contextSizeSlider;
 
@@ -116,6 +116,15 @@ public class MainController {
                 // Do nothing
             }
         });
+        contextSizeTextField.textProperty().addListener((ObservableValue<? extends String> ov, String oldValue, String newValue) -> {
+            try {
+                int newContextSize = Integer.parseInt(contextSizeTextField.getText());
+                contextSizeSlider.setValue(newContextSize);
+                configModel.setContextSize(newContextSize);
+            } catch (NumberFormatException e) {
+                // Do nothing
+            }
+        });
 
         // These properties are used to keep track of the previously opened directories for browsing
         pathToLlamacppFolder = new SimpleStringProperty("");
@@ -124,18 +133,17 @@ public class MainController {
         gpuLayersField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), ConfigModel.DEFAULT_GPU_LAYERS));
         threadsField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), ConfigModel.DEFAULT_THREADS_COUNT));
         portField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), ConfigModel.DEFAULT_PORT));
+        contextSizeTextField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), ConfigModel.DEFAULT_CONTEXT_SIZE));
         contextSizeSlider.setValue(ConfigModel.DEFAULT_CONTEXT_SIZE);
 
         configModel.contextSizeProperty().addListener((ObservableValue<? extends Number> ov, Number oldValue, Number newValue) -> {
             int value = newValue.intValue();
             contextSizeSlider.setValue(value);
+            contextSizeTextField.setText(Integer.toString(value));
         });
         contextSizeSlider.valueProperty().addListener((ObservableValue<? extends Number> ov, Number oldValue, Number newValue) -> {
             int value = newValue.intValue();
-            int interval = (int) contextSizeSlider.getMajorTickUnit();
-            int roundedValue = Math.round((float) value / interval) * interval;
-            contextSizeLabel.setText(Integer.toString(roundedValue));
-            configModel.setContextSize(roundedValue);
+            contextSizeTextField.setText(Integer.toString(value));
         });
     }
 
@@ -342,7 +350,7 @@ public class MainController {
         int threads = Integer.parseInt(threadsField.getText());
         threads = Math.max(1, threads);
         int port = Integer.parseInt(portField.getText());
-        int contextSize = Integer.parseInt(contextSizeLabel.getText());
+        int contextSize = Integer.parseInt(contextSizeTextField.getText());
         String[] llamaCommands = {"llama-server.exe", "-m", modelPath,
                 "--n-gpu-layers", Integer.toString(gpuLayers), "--threads", Integer.toString(threads),
                 "--ctx-size", Integer.toString(contextSize), "--port", Integer.toString(port)};

@@ -89,7 +89,7 @@
                         <HBox fillHeight="false" maxWidth="1.7976931348623157E308" spacing="8.0">
                            <children>
                               <Slider fx:id="contextSizeSlider" blockIncrement="256.0" majorTickUnit="256.0" max="8192.0" maxWidth="1.7976931348623157E308" min="256.0" minWidth="-Infinity" minorTickCount="0" prefHeight="30.0" prefWidth="223.0" showTickMarks="true" snapToTicks="true" value="4096.0" HBox.hgrow="ALWAYS" />
-                              <Label fx:id="contextSizeLabel" contentDisplay="TOP" minWidth="38.0" text="4096" HBox.hgrow="ALWAYS" />
+                              <TextField fx:id="contextSizeTextField" text="4096" />
                            </children>
                         </HBox>
                      </children>
