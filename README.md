@@ -1,7 +1,7 @@
 # llama-fx
 A simple GUI wrapper for llama.cpp built with JavaFX.
 
-![llama-fx_screenshot](https://github.com/user-attachments/assets/1b0a8696-bfdc-4673-8fd1-d1ad8bfc934f)
+![llamafx_screenshot](https://github.com/user-attachments/assets/2622796e-3d46-4bff-825c-74ac35262440)
 
 ## About
 This project is a simple GUI wrapper for [llama.cpp](https://github.com/ggerganov/llama.cpp). Currently it supports the `llama-server` tool only.
