@@ -11,7 +11,6 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
-import javafx.scene.control.Label;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.control.TextFormatter;
@@ -38,7 +37,6 @@ public class MainController {
     @FXML
     private StackPane stackPane;
 
-    private StringProperty pathToLlamacppFolder;
     @FXML
     private TextField pathToLlamacppFolderField;
 
@@ -54,9 +52,12 @@ public class MainController {
     @FXML
     private Slider contextSizeSlider;
 
-    private StringProperty pathToModel;
     @FXML
     private TextField pathToModelField;
+
+    // These properties are used to keep track of the previously opened directories for browsing
+    private final StringProperty pathToLlamacppFolder = new SimpleStringProperty("");
+    private final StringProperty pathToModel = new SimpleStringProperty("");
 
     private ConfigModel configModel;
 
@@ -125,10 +126,6 @@ public class MainController {
                 // Do nothing
             }
         });
-
-        // These properties are used to keep track of the previously opened directories for browsing
-        pathToLlamacppFolder = new SimpleStringProperty("");
-        pathToModel = new SimpleStringProperty("");
 
         gpuLayersField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), ConfigModel.DEFAULT_GPU_LAYERS));
         threadsField.setTextFormatter(new TextFormatter<Integer>(new IntegerStringConverter(), ConfigModel.DEFAULT_THREADS_COUNT));

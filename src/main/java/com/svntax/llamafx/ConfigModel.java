@@ -19,11 +19,11 @@ public class ConfigModel {
     public static final int DEFAULT_CONTEXT_SIZE = 4096;
 
     private final StringProperty pathToLlamacppFolder = new SimpleStringProperty("");
-    private StringProperty pathToModel = new SimpleStringProperty("");
-    private IntegerProperty port = new SimpleIntegerProperty(DEFAULT_PORT);
-    private IntegerProperty gpuLayers = new SimpleIntegerProperty(DEFAULT_GPU_LAYERS);
-    private IntegerProperty threadsCount = new SimpleIntegerProperty(DEFAULT_THREADS_COUNT);
-    private IntegerProperty contextSize = new SimpleIntegerProperty(DEFAULT_CONTEXT_SIZE);
+    private final StringProperty pathToModel = new SimpleStringProperty("");
+    private final IntegerProperty port = new SimpleIntegerProperty(DEFAULT_PORT);
+    private final IntegerProperty gpuLayers = new SimpleIntegerProperty(DEFAULT_GPU_LAYERS);
+    private final IntegerProperty threadsCount = new SimpleIntegerProperty(DEFAULT_THREADS_COUNT);
+    private final IntegerProperty contextSize = new SimpleIntegerProperty(DEFAULT_CONTEXT_SIZE);
 
     /**
      * Saves the config model's properties to a file.
